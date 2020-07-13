@@ -4,48 +4,46 @@
 
 Language: [English](README.md) | [中文简体](README-ZH.md)
 
-A powerful official extension library of image, which support placeholder(loading)/ failed state, cache network, zoom pan image, photo view, slide out page, editor(crop,rotate,flip), paint custom etc.
+A powerful library for displaying and editing images in Flutter. In addition to the features provided by Flutter's built-in `Image` widget, `ExtendedImage` supports placeholder/failed states for image-loading, cached network images, zooming/panning, several types of photo pages, editing (crop/rotate/flip), custom canvas painting, and more.
 
-[Web demo for ExtendedImage](https://fluttercandies.github.io/extended_image/)
+**[Web Demo](https://fluttercandies.github.io/extended_image/)**
 
 ## Table of contents
 
-- [extended_image](#extended_image)
-  - [Table of contents](#table-of-contents)
-  - [Cache Network](#cache-network)
-    - [Simple use](#simple-use)
-    - [Use ExtendedNetworkImageProvider](#use-extendednetworkimageprovider)
-  - [Load State](#load-state)
-    - [demo code](#demo-code)
-  - [Zoom Pan](#zoom-pan)
-    - [double tap animation](#double-tap-animation)
-  - [Editor](#editor)
-    - [crop aspect ratio](#crop-aspect-ratio)
-    - [crop,flip,reset](#cropflipreset)
-    - [crop data](#crop-data)
-      - [dart library(stable)](#dart-librarystable)
-      - [native library(faster)](#native-libraryfaster)
-  - [Photo View](#photo-view)
-  - [Slide Out Page](#slide-out-page)
-    - [enable slide out page](#enable-slide-out-page)
-    - [include your page in ExtendedImageSlidePage](#include-your-page-in-extendedimageslidepage)
-    - [make sure your page background is transparent](#make-sure-your-page-background-is-transparent)
-    - [push with transparent page route](#push-with-transparent-page-route)
-  - [Border BorderRadius Shape](#border-borderradius-shape)
-  - [Clear Save](#clear-save)
-    - [clear](#clear)
-    - [save network](#save-network)
-  - [Show Crop Image](#show-crop-image)
-  - [Paint](#paint)
-  - [WaterfallFlow](#waterfallflow)
-  - [CollectGarbage/viewportBuilder](#collectgarbageviewportbuilder)
-  - [Other APIs](#other-apis)
+- [Cached network images](#cached-network-images)
+  - [Using the widget](#simple-use)
+  - [Creating an ImageProvider](#use-extendednetworkimageprovider)
+- [Loading states](#load-state)
+  - [Example](#demo-code)
+- [Zooming and panning](#zoom-pan)
+  - [Double-tap animation](#double-tap-animation)
+- [Image editor](#editor)
+  - [Aspect ratio](#crop-aspect-ratio)
+  - [Rotate, flip and reset](#cropflipreset)
+  - [Crop](#crop-data)
+    - [Dart library (stable)](#dart-librarystable)
+    - [Native library (faster)](#native-libraryfaster)
+- [Page views](#photo-view)
+- [Slide-out page](#slide-out-page)
+  - [enable slide out page](#enable-slide-out-page)
+  - [include your page in ExtendedImageSlidePage](#include-your-page-in-extendedimageslidepage)
+  - [make sure your page background is transparent](#make-sure-your-page-background-is-transparent)
+  - [push with transparent page route](#push-with-transparent-page-route)
+- [Border BorderRadius Shape](#border-borderradius-shape)
+- [Clear Save](#clear-save)
+  - [Clear](#clear)
+  - [Save Network](#save-network)
+- [Show Crop Image](#show-crop-image)
+- [Paint](#paint)
+- [WaterfallFlow](#waterfallflow)
+- [CollectGarbage/viewportBuilder](#collectgarbageviewportbuilder)
+- [Other APIs](#other-apis)
 
-## Cache Network
+## Cached Network Images
 
-### Simple use
+### Using the Widget
 
-You can use `ExtendedImage.network` as Image Widget
+You can use `ExtendedImage.network` like a regular `Image` Widget:
 
 ```dart
 ExtendedImage.network(
@@ -57,96 +55,71 @@ ExtendedImage.network(
   border: Border.all(color: Colors.red, width: 1.0),
   shape: boxShape,
   borderRadius: BorderRadius.all(Radius.circular(30.0)),
-  //cancelToken: cancellationToken,
+  // cancelToken: cancellationToken,
 )
 ```
 
-### Use ExtendedNetworkImageProvider
+### Creating an ImageProvider
 
-[ExtendedNetworkImageProvider](https://github.com/fluttercandies/extended_image_library/blob/master/lib/src/extended_network_image_provider.dart)
+If you need to work directly with an ImageProvider, you can create a new [ExtendedNetworkImageProvider](https://github.com/fluttercandies/extended_image_library/blob/master/lib/src/extended_network_image_provider.dart):
 
 ```dart
-   ExtendedNetworkImageProvider(
-      this.url, {
-      this.scale = 1.0,
-      this.headers,
-      this.cache: false,
-      this.retries = 3,
-      this.timeLimit,
-      this.timeRetry = const Duration(milliseconds: 100),
-      CancellationToken cancelToken,
-    })  : assert(url != null),
-          assert(scale != null),
-          cancelToken = cancelToken ?? CancellationToken();
+ExtendedNetworkImageProvider(
+  this.url, {
+  this.scale = 1.0,
+  this.headers,
+  this.cache: false,
+  this.retries = 3,
+  this.timeLimit,
+  this.timeRetry = const Duration(milliseconds: 100),
+  CancellationToken cancelToken,
+})  : assert(url != null),
+      assert(scale != null),
+      cancelToken = cancelToken ?? CancellationToken();
 ```
 
-| parameter   | description                                                                           | default             |
-| ----------- | ------------------------------------------------------------------------------------- | ------------------- |
-| url         | The URL from which the image will be fetched.                                         | required            |
-| scale       | The scale to place in the [ImageInfo] object of the image.                            | 1.0                 |
-| headers     | The HTTP headers that will be used with [HttpClient.get] to fetch image from network. | -                   |
-| cache       | whether cache image to local                                                          | false               |
-| retries     | the time to retry to request                                                          | 3                   |
-| timeLimit   | time limit to request image                                                           | -                   |
-| timeRetry   | the time duration to retry to request                                                 | milliseconds: 100   |
-| cancelToken | token to cancel network request                                                       | CancellationToken() |
+| Parameter   | Description                                                                              | Default             |
+| ----------- | ---------------------------------------------------------------------------------------- | ------------------- |
+| url         | The URL from which the image will be fetched                                             | required            |
+| scale       | The scale to set in the `ImageInfo` object of the image                                  | 1.0                 |
+| headers     | The HTTP headers that will be used with `HttpClient.get` to fetch the image from network | -                   |
+| cache       | Whether cache image locally                                                              | false               |
+| retries     | The number of times to retry failed requests                                             | 3                   |
+| timeLimit   | Time limit to request image                                                              | -                   |
+| timeRetry   | The time duration to retry to request                                                    | milliseconds: 100   |
+| cancelToken | Token to cancel network request                                                          | CancellationToken() |
 
-you can create new provider and extends it with ExtendedProvider, and override instantiateImageCodec method.
-so that you can handle image raw data here (compress image).
+You can create new provider, extend it with `ExtendedProvider`, and override the `instantiateImageCodec` method in order to handle image raw data (e.g. to compress an image).
 
-## Load State
+## Loading/Completed/Failed States
 
-Extended Image provide 3 states(loading,completed,failed), you can define your state widget with
-loadStateChanged call back.
-
-loadStateChanged is not only for network, if your image need long time to load,
-you can set enableLoadState(default value is true for network and others are false) to true
+`ExtendedImage` provides three image states: loading, completed, and failed. You can use these states to handle each scenario appropriately.
 
 ![img](https://github.com/fluttercandies/Flutter_Candies/blob/master/gif/extended_image/custom.gif)
 
-Notice:
+Provide a `loadStateChanged` callback to listen for an image's change in state. By default, this is only called for network images. To enable it for other image types (for example, larger images that take time to load), set `enableLoadState` to true.
 
-- if you don't want to override any state, please return null in this case
+Notes:
+- If you want to override size or sourceRect, you can override it with `ExtendedRawImage` at the completed state
 
-- if you want to override size or sourceRect, you can override it with ExtendedRawImage at completed state
+- If you want to add something (like animation) at the completed state, you can override it with `ExtendedImageState.completedWidget`
 
-- if you want to add something (like animation) at completed state, you can override it with ExtendedImageState.completedWidget
+- `ExtendedImageState.completedWidget` is include gesture or editor, so that you would't miss them
 
-- ExtendedImageState.completedWidget is include gesture or editor, so that you would't miss them
 
-```dart
-/// custom load state widget if you want
-    final LoadStateChanged loadStateChanged;
+ExtendedImageState(LoadStateChanged callback)
 
-enum LoadState {
-  //loading
-  loading,
-  //completed
-  completed,
-  //failed
-  failed
-}
-
-  ///whether has loading or failed state
-  ///default is false
-  ///but network image is true
-  ///better to set it's true when your image is big and take some time to ready
-  final bool enableLoadState;
-```
-
-ExtendedImageState(LoadStateChanged call back)
-
-| parameter/method             | description                                                                                                                                   | default |
+| Parameter/Method             | Description                                                                                                                                   | default |
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| extendedImageInfo            | image info                                                                                                                                    | -       |
+| extendedImageInfo            | Image info                                                                                                                                    | -       |
 | extendedImageLoadState       | LoadState(loading,completed,failed)                                                                                                           | -       |
-| returnLoadStateChangedWidget | if this is true, return widget which from LoadStateChanged function immediately(width/height/gesture/border/shape etc, will not effect on it) | -       |
+| returnLoadStateChangedWidget | If this is true, return widget which from LoadStateChanged function immediately(width/height/gesture/border/shape etc, will not effect on it) | -       |
 | imageProvider                | ImageProvider                                                                                                                                 | -       |
 | invertColors                 | invertColors                                                                                                                                  | -       |
-| imageStreamKey               | key of image                                                                                                                                  | -       |
-| reLoadImage()                | if image load failed,you can reload image by call it                                                                                          | -       |
-| completedWidget              | return completed widget include gesture or editor                                                                                             | -       |
-| loadingProgress              | return the loading progress for network image (ImageChunkEvent )                                                                              | -       |
+| imageStreamKey               | Key of image                                                                                                                                  | -       |
+| reLoadImage()                | Attempts to load the image again if it failed the first time                                                                                  | -       |
+| completedWidget              | Return completed widget include gesture or editor                                                                                             | -       |
+| loadingProgress              | Return the loading progress for network image (ImageChunkEvent )                                                                              | -       |
 
 ```dart
 abstract class ExtendedImageState {
@@ -167,7 +140,7 @@ abstract class ExtendedImageState {
 }
 ```
 
-### demo code
+### Example
 
 ```dart
 ExtendedImage.network(
@@ -186,10 +159,8 @@ ExtendedImage.network(
         );
         break;
 
-      ///if you don't want override completed widget
-      ///please return null or state.completedWidget
-      //return null;
-      //return state.completedWidget;
+      /// If you don't want override completed widget,
+      /// return null or state.completedWidget.
       case LoadState.completed:
         _controller.forward();
         return FadeTransition(
@@ -232,32 +203,32 @@ ExtendedImage.network(
 )
 ```
 
-## Zoom Pan
+## Zoom/Pan
 
 ![img](https://github.com/fluttercandies/Flutter_Candies/blob/master/gif/extended_image/zoom.gif)
 
-ExtendedImage
+`ExtendedImage`
 
-| parameter                | description                                                                     | default |
+| Parameter                | Description                                                                     | Default |
 | ------------------------ | ------------------------------------------------------------------------------- | ------- |
 | mode                     | image mode (none, gesture, editor)                                              | none    |
 | initGestureConfigHandler | init GestureConfig when image is ready，for example, base on image width/height | -       |
 | onDoubleTap              | call back of double tap under ExtendedImageMode.gesture                         | -       |
 | extendedImageGestureKey  | you can handle zoom/pan by using this key manually                              | -       |
 
-GestureConfig
+`GestureConfig`
 
-| parameter         | description                                                                                                                                                          | default                 |
+| Parameter         | Description                                                                                                                                                          | default                 |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
-| minScale          | min scale                                                                                                                                                            | 0.8                     |
-| animationMinScale | the min scale for zooming then animation back to minScale when scale end                                                                                             | minScale \_ 0.8         |
-| maxScale          | max scale                                                                                                                                                            | 5.0                     |
-| animationMaxScale | the max scale for zooming then animation back to maxScale when scale end                                                                                             | maxScale \_ 1.2         |
-| speed             | speed for zoom/pan                                                                                                                                                   | 1.0                     |
-| inertialSpeed     | inertial speed for zoom/pan                                                                                                                                          | 100                     |
-| cacheGesture      | save Gesture state (for example in ExtendedImageGesturePageView, gesture state will not change when scroll back),**remember clearGestureDetailsCache at right time** | false                   |
-| inPageView        | whether in ExtendedImageGesturePageView                                                                                                                              | false                   |
-| initialAlignment  | init image rect with alignment when initialScale > 1.0                                                                                                               | InitialAlignment.center |
+| minScale          | Min scale                                                                                                                                                            | 0.8                     |
+| animationMinScale | The min scale for zooming then animation back to minScale when scale end                                                                                             | minScale \_ 0.8         |
+| maxScale          | Max scale                                                                                                                                                            | 5.0                     |
+| animationMaxScale | The max scale for zooming then animation back to maxScale when scale end                                                                                             | maxScale \_ 1.2         |
+| speed             | Speed for zoom/pan                                                                                                                                                   | 1.0                     |
+| inertialSpeed     | Inertial speed for zoom/pan                                                                                                                                          | 100                     |
+| cacheGesture      | Save Gesture state (for example in ExtendedImageGesturePageView, gesture state will not change when scroll back),**remember clearGestureDetailsCache at right time** | false                   |
+| inPageView        | Whether in ExtendedImageGesturePageView                                                                                                                              | false                   |
+| initialAlignment  | Init image rect with alignment when initialScale > 1.0                                                                                                               | InitialAlignment.center |
 
 ```dart
 ExtendedImage.network(
@@ -276,186 +247,174 @@ ExtendedImage.network(
         initialScale: 1.0,
         inPageView: false,
         initialAlignment: InitialAlignment.center,
-        );
+    );
   },
 )
 ```
 
-### double tap animation
+### Double-Tap Animation
+
+You can pass a callback to the widget's `onDoubleTap` parameter. Here's an example of using the callback to change the image's scale.
 
 ```dart
 onDoubleTap: (ExtendedImageGestureState state) {
-  ///you can use define pointerDownPosition as you can,
-  ///default value is double tap pointer down postion.
-  var pointerDownPosition = state.pointerDownPosition;
-  double begin = state.gestureDetails.totalScale;
-  double end;
-
-  //remove old
+  // Clean up the old animation state.
   _animation?.removeListener(animationListener);
-
-  //stop pre
   _animationController.stop();
-
-  //reset to use
   _animationController.reset();
 
+  // Choose a scale to animate to.
   if (begin == doubleTapScales[0]) {
     end = doubleTapScales[1];
   } else {
     end = doubleTapScales[0];
   }
 
+  // You can define doubleTapPosition as any offset.
+  // The default value is the double-tap pointer down postion.
+  var pointerDownPosition = state.pointerDownPosition;
+  double begin = state.gestureDetails.totalScale;
+  double end;
+
   animationListener = () {
-    //print(_animation.value);
     state.handleDoubleTap(
         scale: _animation.value,
         doubleTapPosition: pointerDownPosition);
   };
+
   _animation = _animationController
       .drive(Tween<double>(begin: begin, end: end));
 
   _animation.addListener(animationListener);
-
   _animationController.forward();
 },
 ```
 
-## Editor
+## Image Editor
 
 ![img](https://github.com/fluttercandies/Flutter_Candies/blob/master/gif/extended_image/editor.gif)
 
+`ExtendedImage` provides editor tools to crop, rotate, and flip images. Here's an example of an editable network image:
+
 ```dart
-    ExtendedImage.network(
-      imageTestUrl,
-      fit: BoxFit.contain,
-      mode: ExtendedImageMode.editor,
-      extendedImageEditorKey: editorKey,
-      initEditorConfigHandler: (state) {
-        return EditorConfig(
-            maxScale: 8.0,
-            cropRectPadding: EdgeInsets.all(20.0),
-            hitTestSize: 20.0,
-            cropAspectRatio: _aspectRatio.aspectRatio);
-      },
-    );
+ExtendedImage.network(
+  imageTestUrl,
+  fit: BoxFit.contain,
+  mode: ExtendedImageMode.editor,
+  extendedImageEditorKey: editorKey,
+  initEditorConfigHandler: (state) {
+    return EditorConfig(
+        maxScale: 8.0,
+        cropRectPadding: EdgeInsets.all(20.0),
+        hitTestSize: 20.0,
+        cropAspectRatio: _aspectRatio.aspectRatio);
+  },
+);
 ```
 
 ExtendedImage
 
-| parameter               | description                                                  | default |
+| Parameter               | Description                                                  | Default |
 | ----------------------- | ------------------------------------------------------------ | ------- |
-| mode                    | image mode (none,gestrue,editor)                             | none    |
-| initEditorConfigHandler | init EditorConfig when image is ready.                       | -       |
-| extendedImageEditorKey  | key of ExtendedImageEditorState to flip/rotate/get crop rect | -       |
+| mode                    | Image mode (none, gesture, editor)                           | none    |
+| initEditorConfigHandler | Callback to create EditorConfig when the image is ready.     | -       |
+| extendedImageEditorKey  | Key of ExtendedImageEditorState to flip/rotate/get crop rect | -       |
 
 EditorConfig
 
 | parameter              | description                                                        | default                                                      |
 | ---------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------ |
-| maxScale               | max scale of zoom                                                  | 5.0                                                          |
-| cropRectPadding        | the padding between crop rect and image layout rect.               | EdgeInsets.all(20.0)                                         |
-| cornerSize             | size of corner shape                                               | Size(30.0, 5.0)                                              |
-| cornerColor            | color of corner shape                                              | primaryColor                                                 |
-| lineColor              | color of crop line                                                 | scaffoldBackgroundColor.withOpacity(0.7)                     |
-| lineHeight             | height of crop line                                                | 0.6                                                          |
-| editorMaskColorHandler | call back of editor mask color base on pointerDown                 | scaffoldBackgroundColor.withOpacity(pointerDown ? 0.4 : 0.8) |
-| hitTestSize            | hit test region of corner and line                                 | 20.0                                                         |
-| animationDuration      | auto center animation duration                                     | Duration(milliseconds: 200)                                  |
-| tickerDuration         | duration to begin auto center animation after crop rect is changed | Duration(milliseconds: 400)                                  |
-| cropAspectRatio        | aspect ratio of crop rect                                          | null(custom)                                                 |
-| initCropRectType       | init crop rect base on initial image rect or image layout rect     | imageRect                                                    |
+| maxScale               | Max scale of zoom                                                  | 5.0                                                          |
+| cropRectPadding        | The padding between crop rect and image layout rect.               | EdgeInsets.all(20.0)                                         |
+| cornerSize             | Size of corner shape                                               | Size(30.0, 5.0)                                              |
+| cornerColor            | Color of the corner shape                                          | primaryColor                                                 |
+| lineColor              | Color of the crop line                                             | scaffoldBackgroundColor.withOpacity(0.7)                     |
+| lineHeight             | Height of the crop line                                            | 0.6                                                          |
+| editorMaskColorHandler | Callback of editor mask color base on pointerDown                  | scaffoldBackgroundColor.withOpacity(pointerDown ? 0.4 : 0.8) |
+| hitTestSize            | Hit test region of corner and line                                 | 20.0                                                         |
+| animationDuration      | Auto-center animation duration                                     | Duration(milliseconds: 200)                                  |
+| tickerDuration         | Duration to begin auto-center animation after crop rect is changed | Duration(milliseconds: 400)                                  |
+| cropAspectRatio        | Aspect ratio of the crop rect                                      | null(custom)                                                 |
+| initCropRectType       | Init crop rect based on initial image rect or image layout rect    | imageRect                                                    |
 
-### crop aspect ratio
+### Aspect Ratio
 
-it's a double value, so it's easy for you to define by yourself.
-following are official values
+The crop aspect ratio is of type `double`, so you can provide any value you choose, but this package also comes with some presets:
 
 ```dart
 class CropAspectRatios {
-  /// no aspect ratio for crop
+  // No aspect ratio specified.
   static const double custom = null;
 
-  /// the same as aspect ratio of image
-  /// [cropAspectRatio] is not more than 0.0, it's original
+  // If [cropAspectRatio] is <= 0.0, the image's original aspect ratio is used.
   static const double original = 0.0;
 
-  /// ratio of width and height is 1 : 1
+  // Below, several standard aspect ratios are defined.
   static const double ratio1_1 = 1.0;
-
-  /// ratio of width and height is 3 : 4
   static const double ratio3_4 = 3.0 / 4.0;
-
-  /// ratio of width and height is 4 : 3
   static const double ratio4_3 = 4.0 / 3.0;
-
-  /// ratio of width and height is 9 : 16
   static const double ratio9_16 = 9.0 / 16.0;
-
-  /// ratio of width and height is 16 : 9
   static const double ratio16_9 = 16.0 / 9.0;
 }
 ```
 
-### crop,flip,reset
+### Rotate/Flip/Reset
 
-- add key for ExtendedImageEditorState
+1. Define a global key which can be passed to `extendedImageEditorKey`:
 
-  `final GlobalKey<ExtendedImageEditorState> editorKey =GlobalKey<ExtendedImageEditorState>();`
+  ```dart
+  final GlobalKey<ExtendedImageEditorState> editorKey = GlobalKey<ExtendedImageEditorState>();
+  ```
 
-- rotate right
+2. Perform edit operations on the editor state:
 
-  `editorKey.currentState.rotate(right: true);`
+```dart
+editorKey.currentState.rotate(right: true); // Rotate right
+editorKey.currentState.rotate(right: false); // Rotate left
 
-- rotate left
+editorKey.currentState.flip();
+editorKey.currentState.reset();
+```
 
-  `editorKey.currentState.rotate(right: false);`
+### Crop Data
 
-- flip
+There are two ways to crop image data using this package: the Dart library (stable) and the native library (faster).
 
-  `editorKey.currentState.flip();`
+#### Dart Library (stable)
 
-- reset
-
-  `editorKey.currentState.reset();`
-
-### crop data
-
-#### dart library(stable)
-
-- add [Image](https://github.com/brendan-duncan/image) library into your pubspec.yaml, it's used to crop/rotate/flip image data
+1. Add [Image](https://github.com/brendan-duncan/image) library into your pubspec.yaml. It's used to crop/rotate/flip image data:
 
 ```yaml
 dependencies:
   image: any
 ```
 
-- get crop rect and raw image data from ExtendedImageEditorState
+2. Get the crop rect and raw image data from ExtendedImageEditorState:
 
 ```dart
-  ///crop rect base on raw image
   final Rect cropRect = state.getCropRect();
-
   var data = state.rawImageData;
 ```
 
-- convert raw image data to image library data.
+3. Convert raw image data to image library data:
 
 ```dart
-  /// it costs much time and blocks ui.
-  //Image src = decodeImage(data);
+  // AVOID:
+  // This takes time and will block the UI.
+  Image src = decodeImage(data);
 
-  /// it will not block ui with using isolate.
-  //Image src = await compute(decodeImage, data);
-  //Image src = await isolateDecodeImage(data);
+  // PREFER:
+  // These approaches run asynchronously and will not block the UI.
   final lb = await loadBalancer;
   Image src = await lb.run<Image, List<int>>(decodeImage, data);
+  Image src = await compute(decodeImage, data);
+  Image src = await isolateDecodeImage(data);  
 ```
 
-- crop,flip,rotate data
+4. Crop/flip/rotate data:
 
 ```dart
-  //clear orientation
+  // Clear orientation
   src = bakeOrientation(src);
 
   if (editAction.needCrop)
@@ -464,6 +423,7 @@ dependencies:
 
   if (editAction.needFlip) {
     Flip mode;
+
     if (editAction.flipY && editAction.flipX) {
       mode = Flip.both;
     } else if (editAction.flipY) {
@@ -471,47 +431,47 @@ dependencies:
     } else if (editAction.flipX) {
       mode = Flip.vertical;
     }
+
     src = flip(src, mode);
   }
 
-  if (editAction.hasRotateAngle) src = copyRotate(src, editAction.rotateAngle);
+  if (editAction.hasRotateAngle)
+    src = copyRotate(src, editAction.rotateAngle);
 ```
 
-- convert to original image data
+5. Convert to original image data
 
-output is raw image data, you can use it to save or any other thing.
+The output here is raw image data. You can save it or do whatever else you like.
 
 ```dart
-  /// you can encode your image
-  ///
-  /// it costs much time and blocks ui.
-  //var fileData = encodeJpg(src);
+  // AVOID:
+  // This costs much time and blocks the UI.
+  var fileData = encodeJpg(src);
 
-  /// it will not block ui with using isolate.
-  //var fileData = await compute(encodeJpg, src);
-  //var fileData = await isolateEncodeImage(src);
+  // PREFER:
+  // These will run asynchronously and will not block the UI.
+  var fileData = await compute(encodeJpg, src);
+  var fileData = await isolateEncodeImage(src);
   var fileData = await lb.run<List<int>, Image>(encodeJpg, src);
 ```
 
-#### native library(faster)
+#### Native Library (faster)
 
-- add [ImageEditor](https://github.com/fluttercandies/flutter_image_editor) library into your pubspec.yaml, it's used to crop/rotate/flip image data
+1. Add [ImageEditor](https://github.com/fluttercandies/flutter_image_editor) library into your pubspec.yaml. It's used to crop/rotate/flip image data:
 
 ```yaml
 dependencies:
   image_editor: any
 ```
 
-- get crop rect and raw image data from ExtendedImageEditorState
+2. Get the crop rect and raw image data from ExtendedImageEditorState:
 
 ```dart
-  ///crop rect base on raw image
   final Rect cropRect = state.getCropRect();
-
   var data = state.rawImageData;
 ```
 
-- prepare crop option
+3. Prepare the image editing options:
 
 ```dart
   final rotateAngle = action.rotateAngle.toInt();
@@ -521,18 +481,18 @@ dependencies:
 
   ImageEditorOption option = ImageEditorOption();
 
-  if (action.needCrop) option.addOption(ClipOption.fromRect(rect));
+  if (action.needCrop)
+    option.addOption(ClipOption.fromRect(rect));
 
   if (action.needFlip)
     option.addOption(
         FlipOption(horizontal: flipHorizontal, vertical: flipVertical));
 
-  if (action.hasRotateAngle) option.addOption(RotateOption(rotateAngle));
+  if (action.hasRotateAngle)
+    option.addOption(RotateOption(rotateAngle));
 ```
 
-- crop with editImage
-
-output is raw image data, you can use it to save or any other thing.
+4. Apply the options with `ImageEditor.editImage`
 
 ```dart
   final result = await ImageEditor.editImage(
@@ -540,29 +500,25 @@ output is raw image data, you can use it to save or any other thing.
     imageEditorOption: option,
   );
 ```
+Like the Dart library, the output here is raw image data. You can save it or do whatever else you like.
 
-[more detail](https://github.com/fluttercandies/extended_image/blob/master/example/lib/common/crop_editor_helper.dart)
+[More details](https://github.com/fluttercandies/extended_image/blob/master/example/lib/common/crop_editor_helper.dart)
 
-## Photo View
+## Page Views
 
-ExtendedImageGesturePageView is the same as PageView and it's made for show zoom/pan image.
-
-if you have cache the gesture, remember call clearGestureDetailsCache() method at the right time.(for example,page view page is disposed)
+`ExtendedImageGesturePageView` is a wrapper around Flutter's built-in `PageView`, specialized for zooming and panning images.
 
 ![img](https://github.com/fluttercandies/Flutter_Candies/blob/master/gif/extended_image/photo_view.gif)
 
-ExtendedImageGesturePageView
+`GestureConfig`
 
-| parameter    | description              | default |
-| ------------ | ------------------------ | ------- |
-| cacheGesture | whether should move page | true    |
+| Parameter    | Description                                                         | Default |
+| ------------ | ------------------------------------------------------------------- | ------- |
+| cacheGesture | Save the gesture state when navigating between screens.<sup>1</sup> | false   |
+| inPageView   | Whether the config is in a ExtendedImageGesturePageView             | false   |
 
-GestureConfig
 
-| parameter    | description                                                                                                                                                      | default |
-| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| cacheGesture | save Gesture state (for example in ExtendedImageGesturePageView, gesture state will not change when scroll back),remember clearGestureDetailsCache at right time | false   |
-| inPageView   | whether in ExtendedImageGesturePageView                                                                                                                          | false   |
+<sup>1</sup> If you use `cacheGesture`, remember to call clearGestureDetailsCache() at the right time (for example, when your page view page is disposed).
 
 ```dart
 ExtendedImageGesturePageView.builder(
@@ -573,9 +529,8 @@ ExtendedImageGesturePageView.builder(
       fit: BoxFit.contain,
       mode: ExtendedImageMode.gesture,
       gestureConfig: GestureConfig(
-        inPageView: true, initialScale: 1.0,
-        //you can cache gesture state even though page view page change.
-        //remember call clearGestureDetailsCache() method at the right time.(for example,this page dispose)
+        inPageView: true,
+        initialScale: 1.0,
         cacheGesture: false
       ),
     );
@@ -604,53 +559,50 @@ ExtendedImageGesturePageView.builder(
 ),
 ```
 
-## Slide Out Page
+## Slide-Out Page
 
-Extended Image support to slide out page as WeChat.
+This package supports slide-out pages like the ones in WeChat.
 
 ![img](https://raw.githubusercontent.com/fluttercandies/Flutter_Candies/master/gif/extended_image/slide.gif)
 
-### enable slide out page
+`ExtendedImage`
 
-ExtendedImage
+| Parameter                 | Description                                   | Default |
+| ------------------------- | --------------------------------------------- | ------- |
+| enableSlideOutPage        | Whether slide-out page is enabled             | false   |
+| heroBuilderForSlidingPage | Hero builder for the sliding page<sup>1</sup> | null    |
 
-| parameter                 | description                                                                                                                                      | default |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
-| enableSlideOutPage        | whether enable slide out page                                                                                                                    | false   |
-| heroBuilderForSlidingPage | build Hero only for sliding page, the transform of sliding page must be working on Hero,so that Hero animation wouldn't be strange when pop page | null    |
+<sup>1</sup> The transform of sliding page must act on Hero, so that the hero Hero animation doesn't look strange when the page is popped.
 
-### include your page in ExtendedImageSlidePage
 
-take care of onSlidingPage call back, you can update other widgets' state as you want.
-but, do not setState directly here, image state will changed, you should only notify the widgets which are needed to change
+Using the `onSlidingPage` callback, you can update other widgets' state. Take care not to call `setState` directly here, as the image state would change. You should only notify the widgets which need to change.
 
 ```dart
-    return ExtendedImageSlidePage(
-      child: result,
-      slideAxis: SlideAxis.both,
-      slideType: SlideType.onlyImage,
-      onSlidingPage: (state) {
-        ///you can change other widgets' state on page as you want
-        ///base on offset/isSliding etc
-        //var offset= state.offset;
-        var showSwiper = !state.isSliding;
-        if (showSwiper != _showSwiper) {
-          // do not setState directly here, the image state will change,
-          // you should only notify the widgets which are needed to change
-          // setState(() {
-          // _showSwiper = showSwiper;
-          // });
+return ExtendedImageSlidePage(
+  child: result,
+  slideAxis: SlideAxis.both,
+  slideType: SlideType.onlyImage,
+  onSlidingPage: (state) {
+    // You can change other widgets' state on the page based on offset, isSliding, etc.
+    // var offset = state.offset;
+    
+    var showSwiper = !state.isSliding;
+    if (showSwiper != _showSwiper) {
+      // DON'T DO THIS (see above):
+      // setState(() {
+      // _showSwiper = showSwiper;
+      // });
 
-          _showSwiper = showSwiper;
-          rebuildSwiper.add(_showSwiper);
-        }
-      },
-    );
+      _showSwiper = showSwiper;
+      rebuildSwiper.add(_showSwiper);
+    }
+  },
+);
 ```
 
 ExtendedImageGesturePage
 
-| parameter                  | description                                                                      | default                           |
+| Parameter                  | Description                                                                      | Default                           |
 | -------------------------- | -------------------------------------------------------------------------------- | --------------------------------- |
 | child                      | The [child] contained by the ExtendedImageGesturePage.                           | -                                 |
 | slidePageBackgroundHandler | build background when slide page                                                 | defaultSlidePageBackgroundHandler |
@@ -934,7 +886,3 @@ ExtendedImage
 | enableMemoryCache           | whether cache in PaintingBinding.instance.imageCache)                                          | true    |
 | clearMemoryCacheIfFailed    | when failed to load image, whether clear memory cache.if true, image will reload in next time. | true    |
 | clearMemoryCacheWhenDispose | when image is removed from the tree permanently, whether clear memory cache.                   | false   |
-
-## ☕️Buy me a coffee
-
-![img](http://zmtzawqlp.gitee.io/my_images/images/qrcode.png)
